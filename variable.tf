@@ -3,7 +3,7 @@ variable "version" {
     description = "The version of TF"
 }
 
-variable "environment"      { default = "staging"   description = "ENV" }
+variable "environment"      { default = "prod"   description = "ENV" }
 variable "project"          { default = "mlearn"   description = "PROJECT" }
 variable "aws_account_id"   { default = "480833364711" description = "replace with your aws account id" }
 variable "aws_account_number"   { default = "480833364711" description = "replace with your aws account id" }
@@ -12,13 +12,13 @@ variable "aws_account_name" { default = "electron" description = "replace with y
 
 
 #VPC
-variable "vpc"               { default = "172.26.8.0/24"   description = "Main VPC" }
-variable "mlearn_dmz"        { default = "172.26.8.128/28"  description = "DMZ Subnet" }
-variable "mlearn_dmz2"       { default = "172.26.8.144/28"  description = "DMZ Subnet" }
-variable "mlearn_a"          { default = "172.26.8.0/27"   description = "Application Subnet A" }
-variable "mlearn_a1"         { default = "172.26.8.32/27"  description = "Application Subnet A1" }
-variable "mlearn_b"          { default = "172.26.8.64/27"  description = "RDS PostgreSQL Subnet B" }
-variable "mlearn_b1"         { default = "172.26.8.96/27"  description = "RDS PostgreSQL Subnet B1" }
+variable "vpc"               { default = "172.26.9.0/24"   description = "Main VPC" }
+variable "mlearn_dmz"        { default = "172.26.9.128/27"  description = "DMZ Subnet" }
+variable "mlearn_dmz2"       { default = "172.26.9.160/27"  description = "DMZ Subnet" }
+variable "mlearn_a"          { default = "172.26.9.0/27"   description = "Application Subnet A" }
+variable "mlearn_a1"         { default = "172.26.9.32/27"  description = "Application Subnet A1" }
+variable "mlearn_b"          { default = "172.26.9.64/27"  description = "RDS MySQL Subnet B" }
+variable "mlearn_b1"         { default = "172.26.9.96/27"  description = "RDS MySQL Subnet B1" }
 
 #Region & Availability Zones
 variable "aws_region"       { default = "ap-south-1"  description = "PROD region 1" }
@@ -44,7 +44,8 @@ variable "ami" {
 variable "instance_type" {
     default = {
         bastion =           "t2.micro"
-        application =       "t2.medium"
+	application =       "t2.large"
+	opsserver =         "t2.large"
         application_autoscale = "m4.large"
     }
     description = "AWS instance type (must be compatible with corresponding AMI)"
@@ -52,10 +53,14 @@ variable "instance_type" {
 
 
 #Memcache
-variable "memcache_instance_type"  { default = "cache.t2.large"  description = "memcache instance type" }
+variable "memcache_instance_type"  { default = "cache.m4.large"  description = "memcache instance type" }
 variable  "cache_port" { default = "11211"  description = "memcache instance port" }
-variable  "cache_instance_count" { default = "1"  description = "memcache instance count" }
-variable  "engine_version"       { default = "1.4.34"  description = "memcache version" }
+variable  "cache_instance_count" { default = "2"  description = "memcache instance count" }
+variable  "memcache_engine_version"       { default = "1.4.34"  description = "memcache version" }
+variable "maintenance_window_memcache" {
+  # SUN 12:30AM-01:30AM IST
+  default = "sun:19:00-sun:20:00"
+}
 
 
 ##Key Pair
@@ -67,7 +72,7 @@ variable "sshrhel_user"  { default = "ec2-user"   description = "ssh user" }
 
 ##ELB Certificate ARN
 
-variable "web_ssl_certificate_id" { default =  "arn:aws:acm:ap-south-1:480833364711:certificate/44882d94-447a-474c-90cb-6ef9af8b6a90"}
+variable "web_ssl_certificate_id" { default =  "arn:aws:acm:ap-south-1:480833364711:certificate/a9cd64cd-372c-4704-9a86-38840576bbac"}
 
 
 # ELB Account Numbers
@@ -95,12 +100,16 @@ variable "allocated_storage" {
   default = "200"
 }
 
+variable "allocated_storage_rr" {
+  default = "200"
+}
+
 variable "engine_version" {
-  default = "9.6.3"
+  default = "5.6.37"
 }
 
 variable "dbinstance_type" {
-  default = "db.t2.large"
+  default = "db.r4.large"
 }
 
 variable "storage_type" {
@@ -109,14 +118,14 @@ variable "storage_type" {
 
 #variable "vpc_id" {}
 
-variable "database_identifier" {default = "soroco"}
+variable "database_identifier" {default = "mlearn-prod"}
 
 variable "snapshot_identifier" {
   default = ""
 }
 
 variable "database_port" {
-  default = "5432"
+  default = "3306"
 }
 
 variable "backup_retention_period" {
@@ -138,7 +147,7 @@ variable "auto_minor_version_upgrade" {
 }
 
 variable "final_snapshot_identifier" {
-  default = "terraform-aws-postgresql-rds-snapshot"
+  default = "mlearn-prod-aws-mysql-rds-snapshot"
 }
 
 variable "skip_final_snapshot" {
@@ -154,7 +163,7 @@ variable "multi_availability_zone" {
 }
 
 variable "storage_encrypted" {
-  default = false
+  default = true
 }
 
 #ASG Script

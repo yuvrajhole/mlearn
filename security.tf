@@ -64,7 +64,7 @@ resource "aws_security_group" "sg_application" {
         from_port =     22
         to_port =       22
         protocol =      "tcp"
-        cidr_blocks =   ["172.26.8.138/32"]
+	security_groups =	["${aws_security_group.sg_bastion.id}"]
     }
 
 
@@ -167,3 +167,57 @@ resource "aws_security_group" "sg_script_server" {
         Version =       "${var.version}"
     }
 }
+
+
+# Ops_server
+resource "aws_security_group" "sg_ops_server" {
+    description =       "Allows SSH traffic from the Bastion"
+    name =              "${var.environment}_sg_ops_server"
+    vpc_id =            "${aws_vpc.vpc_mlearn.id}"
+
+    ingress {
+        from_port =     22
+        to_port =       22
+        protocol =      "tcp"
+        security_groups =   ["${aws_security_group.sg_bastion.id}"]
+    }
+
+    egress {
+        from_port =     0
+        to_port =       0
+        protocol =      "-1"
+        cidr_blocks =   ["0.0.0.0/0"]
+    }
+    tags {
+        Name =          "${var.project}_sg_ops_server"
+        Environment =   "${var.environment}"
+        Version =       "${var.version}"
+    }
+}
+
+# Memcache SG
+resource "aws_security_group" "sg_memcache" {
+    description =       "Allows memcache access"
+    name =              "${var.environment}_sg_memcache"
+    vpc_id =            "${aws_vpc.vpc_mlearn.id}"
+
+    ingress {
+        from_port =     11211
+        to_port =       11211
+        protocol =      "tcp"
+        security_groups =   ["${aws_security_group.sg_application.id}","${aws_security_group.sg_mysql.id}"]
+    }
+
+    egress {
+        from_port =     0
+        to_port =       0
+        protocol =      "-1"
+        cidr_blocks =   ["0.0.0.0/0"]
+    }
+    tags {
+        Name =          "${var.project}_sg_memcache"
+        Environment =   "${var.environment}"
+        Version =       "${var.version}"
+    }
+}
+

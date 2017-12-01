@@ -1,0 +1,37 @@
+{
+    "Id":"Policy${aws_account_number}",
+    "Statement":
+    [
+
+        {
+            "Action":"s3:PutObject",
+            "Effect":"Allow",
+            "Principal":
+            {
+                "AWS":"arn:aws:iam::${elb_account_number}:root"
+            },
+            "Resource":
+            [
+                "arn:aws:s3:::${elb_logging_bucket}/ALB/APP/AWSLogs/${aws_account_number}/*"
+            ],
+            "Sid":"Stmt${aws_account_number}"
+        },
+        {
+            "Action":"s3:PutObject",
+            "Effect":"Allow",
+            "Principal":
+            {
+                "AWS":"arn:aws:iam::${elb_account_number}:root"
+            },
+            "Resource":
+            [
+                "arn:aws:s3:::${elb_logging_bucket}/INTERNALALB/APP/AWSLogs/${aws_account_number}/*"
+                
+            ],
+            "Sid":"Stmt${aws_account_number}"
+        }
+
+    ],
+    "Version":"2012-10-17"
+}
+
